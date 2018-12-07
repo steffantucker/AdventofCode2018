@@ -23,15 +23,43 @@ def calculateChecksum(ids)
 	puts "Checksum: #{twoLetterCount * threeLetterCount}"
 end
 
-def findSimilarIds (ids)
-	ids.sort!
+def findSimilars(ids)
+	# get list of sums of the words
+	# the assumption is that all letters but one are the same,
+	# the sum of the characters will be within 27
+	# other cases will also include the same letters but in a different order
+	# which will be checked after
+	
+	# loop though, get sums of letters
+	# add to a hash with word => sum
+	# loop through sums
+	#  compare each sum to others
+	#  create list of words that are within 27 of each other
+	# loop through other list
+	#  compare to other words, keep count
+	#  if count is less than needed count, drop word
+	# assumption is only needed values will be left
+	# prepare last word by dropping letters that are different
+
 	counts = Hash.new
-	ids.each do |word|
+	for id in (0..ids.length) do
 		sum = 0
-		word.each_byte do |x|
-			sum += x
+		# might only work with enumerables
+		sum = id.each_code(:+)
+		counts[id] = sum
+	end
+
+	closeOnes = Hash.new
+	for i in (0..counts.length) do
+		closeCount = 0
+		for j in (i..counts.length) do
+			if (counts[i] + 27) > counts[j] && (counts[i] - 27) < counts[j]
+				if closeCount == 0
+					closeCount += 1
+					# need the key, not the value
+					closeOnes.keys[i]
+			end
 		end
-		counts[hash] = sum
 	end
 	puts counts
 end
