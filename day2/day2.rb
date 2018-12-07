@@ -2,6 +2,7 @@ def calculateChecksum(ids)
 	twoLetterCount = 0
 	threeLetterCount = 0
 	letterCounts = Hash.new
+	# counts the double and triple lettered words
 	ids.each do |id|
 		letterCounts.clear
 		id.each_char do |letter|
@@ -23,50 +24,54 @@ def calculateChecksum(ids)
 	puts "Checksum: #{twoLetterCount * threeLetterCount}"
 end
 
-def findSimilars(ids)
-	# get list of sums of the words
-	# the assumption is that all letters but one are the same,
-	# the sum of the characters will be within 27
-	# other cases will also include the same letters but in a different order
-	# which will be checked after
-	
-	# loop though, get sums of letters
-	# add to a hash with word => sum
-	# loop through sums
-	#  compare each sum to others
-	#  create list of words that are within 27 of each other
-	# loop through other list
-	#  compare to other words, keep count
-	#  if count is less than needed count, drop word
-	# assumption is only needed values will be left
-	# prepare last word by dropping letters that are different
-
+def findSimilarIds(ids)
 	counts = Hash.new
-	for id in (0..ids.length) do
+	# get the sum of each words code count
+	# the assumption being words that are only a few letters off
+	# will have similar sums
+	ids.each do |id|
 		sum = 0
-		# might only work with enumerables
-		sum = id.each_code(:+)
+		id.each_codepoint do |n|
+			sum += n
+		end
 		counts[id] = sum
 	end
 
-	closeOnes = Hash.new
-	for i in (0..counts.length) do
-		closeCount = 0
-		for j in (i..counts.length) do
-			if (counts[i] + 27) > counts[j] && (counts[i] - 27) < counts[j]
-				if closeCount == 0
-					closeCount += 1
-					# need the key, not the value
-					closeOnes.keys[i]
+	closeOnes = []
+	counts.each do |id, count|
+		counts.each do |idj, countj|
+			# similar sums are probably similar strings
+			if id != idj && (count + 27) > countj && (count - 27) < countj
+				wrongCount = 0
+				# compare each letter directly
+				id.length.times do |i|
+					if id[i] != idj[i]
+						wrongCount += 1
+					end
+					break if wrongCount > 1
+				end
+				# found some that are only a letter apart
+				# now extract only the similar letters and print
+				if wrongCount <= 1
+					answer = ""
+					id.length.times do |i|
+						if id[i] == idj[i]
+							answer += id[i]
+						end
+					end
+					closeOnes.push "similar letters: #{answer}"
+				end
 			end
 		end
+		counts.delete(id)
 	end
-	puts counts
+	puts closeOnes
 end
 
+# collect ids from inputs file
 boxIds = []
 File.foreach("./day2.inputs") { |x| boxIds.push(x.strip) }
 puts "#{boxIds.length} box IDs"
 
-#calculateChecksum(boxIds)
+calculateChecksum(boxIds)
 findSimilarIds(boxIds)
