@@ -31,9 +31,7 @@ def findSimilarIds(ids)
 	# will have similar sums
 	ids.each do |id|
 		sum = 0
-		id.each_codepoint do |n|
-			sum += n
-		end
+		id.each_codepoint.inject(:+)
 		counts[id] = sum
 	end
 
