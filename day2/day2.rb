@@ -23,8 +23,22 @@ def calculateChecksum(ids)
 	puts "Checksum: #{twoLetterCount * threeLetterCount}"
 end
 
+def findSimilarIds (ids)
+	ids.sort!
+	counts = Hash.new
+	ids.each do |word|
+		sum = 0
+		word.each_byte do |x|
+			sum += x
+		end
+		counts[hash] = sum
+	end
+	puts counts
+end
+
 boxIds = []
 File.foreach("./day2.inputs") { |x| boxIds.push(x.strip) }
 puts "#{boxIds.length} box IDs"
 
-calculateChecksum(boxIds)
+#calculateChecksum(boxIds)
+findSimilarIds(boxIds)
